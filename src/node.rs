@@ -4,6 +4,7 @@ use std::collections::HashMap;
 pub struct Node {
     pub name: String,
     pub children: HashMap<String, Node>,
+    pub xml_children: Vec<Node>,
     pub data: HashMap<String, String>,
 }
 
@@ -12,6 +13,7 @@ impl Node {
         Node {
             name: String::new(),
             children: HashMap::new(),
+            xml_children: Vec::new(),
             data: HashMap::new(),
         }
     }
@@ -26,9 +28,19 @@ impl Node {
         }
     }
 
+    pub fn xml_child(&self, name: &str) -> Node {
+        for node in &self.xml_children {
+            if &node.name == name {
+                return node.clone();
+            }
+        }
+
+        Node::new()
+    }
+
     pub fn value(&self, name: &str) -> String {
         if let Some(value) = self.data.get(name) {
-            value.to_owned()
+            value.clone()
         } else {
             String::new()
         }

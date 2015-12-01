@@ -15,6 +15,8 @@ pub mod node;
 
 use node::Node;
 
+//pub fn parse_simple(path: &Path) -> 
+
 pub fn walk_dir(path: &Path) -> Node {
     let walker = WalkDir::new(&path);
     let mut walker = walker.into_iter().peekable();
@@ -55,7 +57,8 @@ fn parse_node<R: Read>(parser: &mut EventReader<R>) -> Option<Node> {
                 }
 
                 while let Some(child_node) = parse_node(parser) {
-                    node.children.insert(child_node.name.clone(), child_node);
+                    //node.children.insert(child_node.name.clone(), child_node);
+                    node.xml_children.push(child_node);
                 }
 
                 return Some(node);

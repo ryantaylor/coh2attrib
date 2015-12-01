@@ -24,9 +24,9 @@ fn main() {
                          .child("commander")
                          .child("aef")
                          .child("usf_airborne_company.xml")
-                         .child("instance")
-                         .child("group.commander_bag")
-                         .child("locstring.name")
+                         .xml_child("instance")
+                         .xml_child("group.commander_bag")
+                         .xml_child("locstring.name")
                          .value("value");
     println!("{}", values);
     //println!("{:?}", document);
