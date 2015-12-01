@@ -55,7 +55,6 @@ fn parse_node<R: Read>(parser: &mut EventReader<R>) -> Option<XmlNode> {
                         node.set_name(&node_name);
                     }
                     node.add_data(&attribute.name.local_name, &attribute.value);
-                    //node.data.insert(attribute.name.local_name.clone(), attribute.value.clone());
                 }
 
                 while let Some(child_node) = parse_node(parser) {
@@ -98,25 +97,22 @@ fn parse_dir(walker: &mut Peekable<Iter>, depth: usize) -> Option<DirNode> {
             Some(result) => {
                 match result {
                     Ok(entry) => {
-                        //println!("{}", entry.depth());
-                        let name = entry.file_name().to_string_lossy();
-                        //node.name = String::from(name.deref());
-                        node.set_name(name.deref());
+                        if let Some(name) = entry.path().file_stem() {
+                            let name = name.to_string_lossy();
+                            node.set_name(name.deref());
+                        } else {
+                            let name = entry.file_name().to_string_lossy();
+                            node.set_name(name.deref());
+                        }
 
                         if entry.file_type().is_dir() {
-                            //println!("in directory {}", entry.path().display());
-                            //let depth = entry.depth();
-
                             while let Some(child_node) = parse_dir(walker, entry.depth() + 1) {
-                                //node.children.insert(child_node.name.clone(), child_node);
                                 node.add_child(Box::new(child_node));
                             }
 
                             return Some(node);
                         } else {
-                            //println!("in file {}", entry.path().display());
                             let child_node = parse(&entry.path());
-                            //node.children.insert(child_node.name.clone(), child_node);
                             node.add_child(Box::new(child_node));
                             println!("---returning node {}", node.get_name());
                             return Some(node);
@@ -129,48 +125,9 @@ fn parse_dir(walker: &mut Peekable<Iter>, depth: usize) -> Option<DirNode> {
                 }
             },
             _ => {
-                //println!("finished");
                 println!("returning node {}", node.get_name());
                 return Some(node);
             }
         }
     }
 }
-
-// fn parse_dir(walker: &mut Iter) -> Node {
-//     let mut node = Node::new();
-//     walker.peekable();
-//     match walker.next() {
-//         Some(result) => {
-//             match result {
-//                 Ok(entry) => {
-//                     let name = entry.file_name.to_string_lossy();
-//                     node.name = String::new(name.deref());
-//                     let depth = entry.depth();
-
-//                     loop {
-//                         if let Some(next) = walker.peek() {
-//                             if next.file_type.is_dir() {
-//                                 let child_node = parse_dir(walker);
-//                                 node.children.insert(child_node.name.clone(), child_node);
-//                             } else {
-//                                 if next.depth() == depth {
-
-//                                 }
-//                             }
-//                         } else {
-//                             Node::new()
-//                         }
-//                     }
-
-//                     return Some(node);
-//                 },
-//                 Err(err) => {
-//                     println!("error {}", err);
-//                     Node::new()
-//                 }
-//             }
-//         },
-//         _ => { node }
-//     }
-// }

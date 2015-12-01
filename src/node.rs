@@ -2,12 +2,14 @@ use std::collections::HashMap;
 use std::ops::Deref;
 
 pub trait Node {
+    fn is_attribute_node(&self) -> bool;
     fn get_name(&self) -> String;
     fn set_name(&mut self, name: &str);
     fn add_data(&mut self, name: &str, value: &str);
     fn add_child(&mut self, node: Box<Node>);
     fn get_child(&self, name: &str) -> &Box<Node>;
     fn get_children(&self, name: &str) -> Vec<&Box<Node>>;
+    fn get_all_children(&self) -> Vec<&Box<Node>>;
     fn get_value(&self, name: &str) -> String;
 }
 
@@ -28,6 +30,10 @@ impl DirNode {
 }
 
 impl Node for DirNode {
+    fn is_attribute_node(&self) -> bool {
+        false
+    }
+
     fn get_name(&self) -> String {
         self.name.clone()
     }
@@ -59,6 +65,15 @@ impl Node for DirNode {
         children
     }
 
+    fn get_all_children(&self) -> Vec<&Box<Node>> {
+        let mut children = Vec::new();
+        for (_, node) in &self.children {
+            children.push(node);
+        }
+
+        children
+    }
+
     fn get_value(&self, name: &str) -> String {
         if let Some(value) = self.data.get(name) {
             value.to_owned()
@@ -85,6 +100,10 @@ impl XmlNode {
 }
 
 impl Node for XmlNode {
+    fn is_attribute_node(&self) -> bool {
+        true
+    }
+    
     fn get_name(&self) -> String {
         self.name.clone()
     }
@@ -117,6 +136,15 @@ impl Node for XmlNode {
             if &node.deref().get_name() == name {
                 children.push(node);
             }
+        }
+
+        children
+    }
+
+    fn get_all_children(&self) -> Vec<&Box<Node>> {
+        let mut children = Vec::new();
+        for node in &self.children {
+            children.push(node);
         }
 
         children
