@@ -15,19 +15,19 @@ fn main() {
     let path = Path::new("/data/tools/assets/data/attributes");
     println!("parsing attributes...");
     let document = coh2attrib::walk_dir(&path);
-    println!("root node: {}", document.name);
-    println!("number of children: {}", document.children.len());
-    for (name, node) in &document.children {
-        println!("child: {} {}", name, node.name);
-    }
-    let values = document.child("instances")
-                         .child("commander")
-                         .child("aef")
-                         .child("usf_airborne_company.xml")
-                         .child("instance")
-                         .child("group.commander_bag")
-                         .child("locstring.name")
-                         .value("value");
+    println!("root node: {}", document.get_name());
+    //println!("number of children: {}", document.children.len());
+    // for (name, node) in &document.get_children() {
+    //     println!("child: {} {}", name, node.get_name());
+    // }
+    let values = document.get_child("instances")
+                         .get_child("commander")
+                         .get_child("aef")
+                         .get_child("usf_airborne_company.xml")
+                         .get_child("instance")
+                         .get_child("group.commander_bag")
+                         .get_child("locstring.name")
+                         .get_value("value");
     println!("{}", values);
     //println!("{:?}", document);
 }
