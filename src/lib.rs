@@ -27,7 +27,7 @@ pub fn walk_dir(path: &Path) -> Node {
     }
 }
 
-pub fn parse(path: &Path) -> Node {
+fn parse(path: &Path) -> Node {
     let file = File::open(&path).unwrap();
     let file = BufReader::new(file);
 
