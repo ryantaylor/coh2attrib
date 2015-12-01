@@ -18,8 +18,10 @@ impl Node {
 
     pub fn child(&self, name: &str) -> Node {
         if let Some(node) = self.children.get(name) {
+            println!("node {} has {} children", name, node.children.len());
             node.clone()
         } else {
+            println!("couldn't find node {}", name);
             Node::new()
         }
     }
