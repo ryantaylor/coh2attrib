@@ -1,0 +1,8 @@
+[package]
+name = "coh2attrib"
+version = "0.1.0"
+authors = ["ryantaylor <ryan.taylor9@gmail.com>"]
+
+[dependencies]
+walkdir = "0.1"
+xml-rs = "0.2"
