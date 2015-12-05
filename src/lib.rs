@@ -1,13 +1,19 @@
+#[macro_use]
+extern crate nom;
 extern crate xml;
 extern crate walkdir;
 
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::Read;
 use std::iter::Peekable;
 use std::ops::Deref;
 use std::path::Path;
+use std::str::{FromStr, from_utf8_unchecked};
 
+use nom::{digit, eof, not_line_ending, space, tab};
+use nom::IResult::*;
 use walkdir::{Iter, WalkDir};
 use xml::reader::{EventReader, XmlEvent};
 
@@ -130,4 +136,64 @@ fn parse_dir(walker: &mut Peekable<Iter>, depth: usize) -> Option<DirNode> {
             }
         }
     }
+}
+
+pub fn parse_locale(path: &Path) -> HashMap<i32, String> {
+    println!("opening file...");
+    let mut file = File::open(&path).unwrap();
+    //let mut file_string = String::new();
+    let mut file_vec = Vec::new();
+    println!("reading to string...");
+    //file.read_to_string(&mut file_string).unwrap();
+    file.read_to_end(&mut file_vec).unwrap();
+
+    println!("parsing...");
+
+    named!(eol, alt!(tag!("\r\n") | tag!("\n") | tag!("\u{2028}") | tag!("\u{2029}")));
+
+    named!(parse_entry <&[u8], (i32, String)>,
+        chain!(
+                id: map!(call!(digit), buf_to_i32)          ~
+                    tab?                                    ~
+               val: map!(call!(not_line_ending), to_string) ~
+                    alt!(eof | eol),
+                || {
+                    //println!("{} {}", id, val);
+                    (id, val.to_owned())
+                }
+            ));
+
+    named!(parse_loc_strings <&[u8], (Vec<(i32, String)>)>, many0!(parse_entry));
+
+    //let locale_entries = match parse_loc_strings(&file_string.as_bytes()[..]) {
+    let locale_entries = match parse_loc_strings(&file_vec[..]) {
+        Done(_, entries) => entries,
+        _ => panic!("shit went down yo")
+    };
+
+    let mut locale_strings: HashMap<i32, String> = HashMap::new();
+
+    for (id, value) in locale_entries {
+        if id >= 0 {
+            locale_strings.insert(id, value);
+        }
+    }
+
+    locale_strings
+}
+
+fn to_string(s: &[u8]) -> &str {
+    unsafe { from_utf8_unchecked(s) }
+}
+
+fn to_i32(s: &str) -> i32 {
+    //println!("{}", s);
+    match FromStr::from_str(s) {
+        Ok(val) => val,
+        _ => -1
+    }
+}
+
+fn buf_to_i32(s: &[u8]) -> i32 {
+    to_i32(to_string(s))
 }
